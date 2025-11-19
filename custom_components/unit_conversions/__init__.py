@@ -11,6 +11,7 @@ All filters include robust error handling and support multiple unit name variati
 """
 
 from homeassistant.core import HomeAssistant
+from jinja2 import Environment
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -435,7 +436,8 @@ async def async_setup(hass: HomeAssistant, config: dict):
     """
     from homeassistant.helpers import template
 
-    env = Environment() 
+    # Get Home Assistant's Jinja2 environment
+    env = hass.data[template.DATA_HASS_ENV]
 
     # Define custom filters
     custom_filters = {
@@ -452,7 +454,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     "l_per_min" : l_per_min,
     "gpm" : gpm,
     "g_per_min" : gpm,
-    "c" := celsius,
+    "c" : celsius,
     "celsius" : celsius,
     "f" :  fahrenheit,
     "fahrenheit" : fahrenheit,
@@ -460,11 +462,9 @@ async def async_setup(hass: HomeAssistant, config: dict):
     "kelvin" : kelvin,
     }
 
-    # Update the Jinja2 environment with custom filters
+    # Register filters with Home Assistant's Jinja2 environment
+    _LOGGER.info("Setting up Unit Conversions filters")
     env.filters.update(custom_filters)
     
-    _LOGGER.info("Setting up Unit Conversions filters")
-        
-    # Register Power conversion filters (both short and long names)
     _LOGGER.info("Unit Conversions filters registered successfully")
     return True
