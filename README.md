@@ -5,30 +5,23 @@ A Home Assistant custom component that provides comprehensive Jinja2 template fi
 ## Features
 
 ### Power Conversions
-- **`watts`** - Convert to Watts (W) from W or kW
-- **`kilowatts`** - Convert to Kilowatts (kW) from W or kW
+- **`w`** - Convert to Watts (W) from W or kW
+- **`kw`** - Convert to Kilowatts (kW) from W or kW
 
 ### Energy Conversions
-All energy filters support **full bidirectional BTU conversions** and are available with both **short and long names**:
-
-- **`wh`** / **`watt_hours`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ, **BTU**
-- **`kwh`** / **`kilowatt_hours`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ, **BTU**
-- **`joules`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh, **BTU**
-- **`btu`** / **`btu_energy`** - Convert to BTU (British Thermal Units) from J, kJ, MJ, GJ, Wh, kWh, BTU
-
-**BTU Conversion Factors:**
-- 1 Wh = 3.41214 BTU
-- 1 kWh = 3,412.14 BTU
-- 1 BTU = 1,055.06 J
+- **`wh`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ, BTU
+- **`kwh`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ, BTU
+- **`j`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh, BTU
+- **`btu`** - Convert to BTU (British Thermal Units) from J, kJ, MJ, GJ, Wh, kWh, BTU
 
 ### Flow Conversions
-- **`l_per_min`** - Convert to Liters per Minute from L/min or GPM
+- **`lpm`** - Convert to Liters per Minute from L/min or GPM
 - **`gpm`** - Convert to Gallons per Minute from L/min or GPM
 
 ### Temperature Conversions
-- **`celsius`** - Convert to Celsius (°C) from C, F, or K
-- **`fahrenheit`** - Convert to Fahrenheit (°F) from C, F, or K
-- **`kelvin`** - Convert to Kelvin (K) from C, F, or K
+- **`c`** - Convert to Celsius (°C) from C, F, or K
+- **`f`** - Convert to Fahrenheit (°F) from C, F, or K
+- **`k`** - Convert to Kelvin (K) from C, F, or K
 
 ## Installation
 
@@ -65,51 +58,42 @@ Then restart Home Assistant. The filters will be automatically available in all 
 
 ```yaml
 # Convert 5 kW to Watts
-{{ 5 | watts('kW') }}
+{{ 5 | w('kW') }}
 # Result: 5000.0
 
 # Convert 1000 W to Kilowatts
-{{ 1000 | kilowatts('W') }}
+{{ 1000 | kw('W') }}
 # Result: 1.0
 ```
 
 ### Energy Conversions
 
 ```yaml
-# Short names (convenient)
+# Watt-hours
 {{ 1 | wh('kWh') }}
 # Result: 1000.0
 
 {{ 3.6 | kwh('MJ') }}
 # Result: 1.0
 
-# Long names (backward compatible)
-{{ 1 | watt_hours('kWh') }}
-# Result: 1000.0
-
-{{ 3.6 | kilowatt_hours('MJ') }}
-# Result: 1.0
-
 # Convert 1 kWh to Joules
-{{ 1 | joules('kWh') }}
+{{ 1 | j('kWh') }}
 # Result: 3600000.0
 
-# Bidirectional BTU Conversions
-# BTU → other units
+# BTU Conversions
 {{ 3412.14 | kwh('BTU') }}
 # Result: 1.0 (BTU to kWh)
 
 {{ 3.41214 | wh('BTU') }}
 # Result: 1.0 (BTU to Wh)
 
-{{ 1 | joules('BTU') }}
+{{ 1 | j('BTU') }}
 # Result: 1055.06 (BTU to Joules)
 
-# Other units → BTU
 {{ 1 | btu('kWh') }}
 # Result: 3412.14 (kWh to BTU)
 
-{{ 1 | btu_energy('Wh') }}
+{{ 1 | btu('Wh') }}
 # Result: 3.41214 (Wh to BTU)
 
 {{ 10550.6 | btu('J') }}
@@ -120,7 +104,7 @@ Then restart Home Assistant. The filters will be automatically available in all 
 
 ```yaml
 # Convert 1 GPM to Liters per Minute
-{{ 1 | l_per_min('GPM') }}
+{{ 1 | lpm('GPM') }}
 # Result: 3.78541
 
 # Convert 10 L/min to Gallons per Minute
@@ -132,15 +116,15 @@ Then restart Home Assistant. The filters will be automatically available in all 
 
 ```yaml
 # Convert 32°F to Celsius
-{{ 32 | celsius('F') }}
+{{ 32 | c('F') }}
 # Result: 0.0
 
 # Convert 0°C to Fahrenheit
-{{ 0 | fahrenheit('C') }}
+{{ 0 | f('C') }}
 # Result: 32.0
 
 # Convert 0°C to Kelvin
-{{ 0 | kelvin('C') }}
+{{ 0 | k('C') }}
 # Result: 273.15
 ```
 
@@ -154,7 +138,7 @@ template:
       - name: "Power in Kilowatts"
         unit_of_measurement: "kW"
         state: >
-          {{ states('sensor.power_meter') | float | kilowatts('W') }}
+          {{ states('sensor.power_meter') | float | kw('W') }}
 
       - name: "Energy in Watt-hours"
         unit_of_measurement: "Wh"
@@ -169,7 +153,7 @@ template:
       - name: "Temperature in Fahrenheit"
         unit_of_measurement: "°F"
         state: >
-          {{ states('sensor.outdoor_temp') | float | fahrenheit('C') }}
+          {{ states('sensor.outdoor_temp') | float | f('C') }}
 ```
 
 ## Testing
@@ -184,24 +168,24 @@ content: |
   # Unit Conversion Tests
   
   ## Power Conversions
-  - 5 kW → W: {{ 5 | watts('kW') }} W
-  - 1000 W → kW: {{ 1000 | kilowatts('W') }} kW
+  - 5 kW → W: {{ 5 | w('kW') }} W
+  - 1000 W → kW: {{ 1000 | kw('W') }} kW
   
   ## Energy Conversions
-  - 1 kWh → Wh: {{ 1 | watt_hours('kWh') }} Wh
-  - 1000 Wh → kWh: {{ 1000 | kilowatt_hours('Wh') }} kWh
-  - 3.6 MJ → kWh: {{ 3.6 | kilowatt_hours('MJ') }} kWh
-  - 1 kWh → J: {{ 1 | joules('kWh') }} J
+  - 1 kWh → Wh: {{ 1 | wh('kWh') }} Wh
+  - 1000 Wh → kWh: {{ 1000 | kwh('Wh') }} kWh
+  - 3.6 MJ → kWh: {{ 3.6 | kwh('MJ') }} kWh
+  - 1 kWh → J: {{ 1 | j('kWh') }} J
   
   ## Flow Conversions
-  - 1 GPM → L/min: {{ 1 | l_per_min('GPM') }} L/min
+  - 1 GPM → L/min: {{ 1 | lpm('GPM') }} L/min
   - 10 L/min → GPM: {{ 10 | gpm('L/MIN') }} GPM
   
   ## Temperature Conversions
-  - 32°F → °C: {{ 32 | celsius('F') }} °C
-  - 0°C → °F: {{ 0 | fahrenheit('C') }} °F
-  - 0°C → K: {{ 0 | kelvin('C') }} K
-  - 273.15 K → °C: {{ 273.15 | celsius('K') }} °C
+  - 32°F → °C: {{ 32 | c('F') }} °C
+  - 0°C → °F: {{ 0 | f('C') }} °F
+  - 0°C → K: {{ 0 | k('C') }} K
+  - 273.15 K → °C: {{ 273.15 | c('K') }} °C
 ```
 
 Expected results:
@@ -229,17 +213,17 @@ content: |
   
   ## Power Sensor Example
   - Current: {{ states('sensor.power_meter') }} W
-  - In kW: {{ states('sensor.power_meter') | float | kilowatts('W') }} kW
+  - In kW: {{ states('sensor.power_meter') | float | kw('W') }} kW
   
   ## Energy Sensor Example
   - Current: {{ states('sensor.energy_meter') }} kWh
-  - In Wh: {{ states('sensor.energy_meter') | float | watt_hours('kWh') }} Wh
-  - In J: {{ states('sensor.energy_meter') | float | joules('kWh') }} J
+  - In Wh: {{ states('sensor.energy_meter') | float | wh('kWh') }} Wh
+  - In J: {{ states('sensor.energy_meter') | float | j('kWh') }} J
   
   ## Temperature Sensor Example
   - Current: {{ states('sensor.outdoor_temperature') }} °C
-  - In °F: {{ states('sensor.outdoor_temperature') | float | fahrenheit('C') }} °F
-  - In K: {{ states('sensor.outdoor_temperature') | float | kelvin('C') }} K
+  - In °F: {{ states('sensor.outdoor_temperature') | float | f('C') }} °F
+  - In K: {{ states('sensor.outdoor_temperature') | float | k('C') }} K
 ```
 
 ## Supported Unit Variations
@@ -276,12 +260,12 @@ Quick reference for BTU and other energy unit conversions:
 |------|-----|-------------|---------|
 | BTU | Wh | ÷ 3.41214 | `{{ 3.41214 \| wh('BTU') }}` = 1.0 |
 | BTU | kWh | ÷ 3412.14 | `{{ 3412.14 \| kwh('BTU') }}` = 1.0 |
-| BTU | J | × 1055.06 | `{{ 1 \| joules('BTU') }}` = 1055.06 |
+| BTU | J | × 1055.06 | `{{ 1 \| j('BTU') }}` = 1055.06 |
 | Wh | BTU | × 3.41214 | `{{ 1 \| btu('Wh') }}` = 3.41214 |
 | kWh | BTU | × 3412.14 | `{{ 1 \| btu('kWh') }}` = 3412.14 |
 | J | BTU | ÷ 1055.06 | `{{ 1055.06 \| btu('J') }}` = 1.0 |
 | kWh | Wh | × 1000 | `{{ 1 \| wh('kWh') }}` = 1000.0 |
-| kWh | J | × 3,600,000 | `{{ 1 \| joules('kWh') }}` = 3600000.0 |
+| kWh | J | × 3,600,000 | `{{ 1 \| j('kWh') }}` = 3600000.0 |
 | MJ | kWh | ÷ 3.6 | `{{ 3.6 \| kwh('MJ') }}` = 1.0 |
 
 ## Error Handling

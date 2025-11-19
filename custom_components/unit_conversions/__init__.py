@@ -433,29 +433,28 @@ async def async_setup(hass: HomeAssistant, config: dict):
     Returns:
         True if setup successful
     """
+    from homeassistant.helpers import template
+    
     _LOGGER.info("Setting up Unit Conversions filters")
     
     # Register Power conversion filters
-    hass.helpers.template.global_filters["watts"] = watts
-    hass.helpers.template.global_filters["kilowatts"] = kilowatts
+    template.global_filters(hass)["w"] = watts
+    template.global_filters(hass)["kw"] = kilowatts
     
-    # Register Energy conversion filters - register both short and long names
-    hass.helpers.template.global_filters["wh"] = watt_hours
-    hass.helpers.template.global_filters["watt_hours"] = watt_hours
-    hass.helpers.template.global_filters["kwh"] = kilowatt_hours
-    hass.helpers.template.global_filters["kilowatt_hours"] = kilowatt_hours
-    hass.helpers.template.global_filters["joules"] = joules
-    hass.helpers.template.global_filters["btu"] = btu_energy
-    hass.helpers.template.global_filters["btu_energy"] = btu_energy
+    # Register Energy conversion filters
+    template.global_filters(hass)["wh"] = watt_hours
+    template.global_filters(hass)["kwh"] = kilowatt_hours
+    template.global_filters(hass)["j"] = joules
+    template.global_filters(hass)["btu"] = btu_energy
     
     # Register Flow conversion filters
-    hass.helpers.template.global_filters["l_per_min"] = l_per_min
-    hass.helpers.template.global_filters["gpm"] = gpm
+    template.global_filters(hass)["lpm"] = l_per_min
+    template.global_filters(hass)["gpm"] = gpm
     
     # Register Temperature conversion filters
-    hass.helpers.template.global_filters["celsius"] = celsius
-    hass.helpers.template.global_filters["fahrenheit"] = fahrenheit
-    hass.helpers.template.global_filters["kelvin"] = kelvin
+    template.global_filters(hass)["c"] = celsius
+    template.global_filters(hass)["f"] = fahrenheit
+    template.global_filters(hass)["k"] = kelvin
     
     _LOGGER.info("Unit Conversions filters registered successfully")
     return True
