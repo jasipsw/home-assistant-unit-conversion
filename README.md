@@ -9,10 +9,17 @@ A Home Assistant custom component that provides comprehensive Jinja2 template fi
 - **`kilowatts`** - Convert to Kilowatts (kW) from W or kW
 
 ### Energy Conversions
-- **`wh`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ, BTU
-- **`kwh`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ, BTU
-- **`joules`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh, BTU
-- **`btu`** - Convert to BTU (British Thermal Units) from J, kJ, MJ, GJ, Wh, kWh, BTU
+All energy filters support **full bidirectional BTU conversions** and are available with both **short and long names**:
+
+- **`wh`** / **`watt_hours`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ, **BTU**
+- **`kwh`** / **`kilowatt_hours`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ, **BTU**
+- **`joules`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh, **BTU**
+- **`btu`** / **`btu_energy`** - Convert to BTU (British Thermal Units) from J, kJ, MJ, GJ, Wh, kWh, BTU
+
+**BTU Conversion Factors:**
+- 1 Wh = 3.41214 BTU
+- 1 kWh = 3,412.14 BTU
+- 1 BTU = 1,055.06 J
 
 ### Flow Conversions
 - **`l_per_min`** - Convert to Liters per Minute from L/min or GPM
@@ -69,25 +76,44 @@ Then restart Home Assistant. The filters will be automatically available in all 
 ### Energy Conversions
 
 ```yaml
-# Convert 1 kWh to Watt-hours
+# Short names (convenient)
 {{ 1 | wh('kWh') }}
 # Result: 1000.0
 
-# Convert 3.6 MJ to Kilowatt-hours
 {{ 3.6 | kwh('MJ') }}
+# Result: 1.0
+
+# Long names (backward compatible)
+{{ 1 | watt_hours('kWh') }}
+# Result: 1000.0
+
+{{ 3.6 | kilowatt_hours('MJ') }}
 # Result: 1.0
 
 # Convert 1 kWh to Joules
 {{ 1 | joules('kWh') }}
 # Result: 3600000.0
 
-# Convert 1 kWh to BTU
-{{ 1 | btu('kWh') }}
-# Result: 3412.14
+# Bidirectional BTU Conversions
+# BTU → other units
+{{ 3412.14 | kwh('BTU') }}
+# Result: 1.0 (BTU to kWh)
 
-# Convert 10000 BTU to Joules
-{{ 10000 | joules('BTU') }}
-# Result: 10550600.0
+{{ 3.41214 | wh('BTU') }}
+# Result: 1.0 (BTU to Wh)
+
+{{ 1 | joules('BTU') }}
+# Result: 1055.06 (BTU to Joules)
+
+# Other units → BTU
+{{ 1 | btu('kWh') }}
+# Result: 3412.14 (kWh to BTU)
+
+{{ 1 | btu_energy('Wh') }}
+# Result: 3.41214 (Wh to BTU)
+
+{{ 10550.6 | btu('J') }}
+# Result: 10.0 (Joules to BTU)
 ```
 
 ### Flow Conversions
@@ -231,6 +257,7 @@ The filters support multiple variations of unit names for convenience:
 - Kilojoules: `kJ`, `KJ`, `KILOJOULE`, `KILOJOULES`
 - Megajoules: `MJ`, `MEGAJOULE`, `MEGAJOULES`
 - Gigajoules: `GJ`, `GIGAJOULE`, `GIGAJOULES`
+- BTU: `BTU`, `BTUS`, `BRITISHTHERMALUNIT`, `BRITISHTHERMALUNITS`
 
 ### Flow Units
 - Liters per Minute: `L/MIN`, `LPM`, `LMIN`, `LPERMIN`
@@ -240,6 +267,22 @@ The filters support multiple variations of unit names for convenience:
 - Celsius: `C`, `°C`, `CELSIUS`
 - Fahrenheit: `F`, `°F`, `FAHRENHEIT`
 - Kelvin: `K`, `KELVIN`
+
+## Energy Conversion Reference Table
+
+Quick reference for BTU and other energy unit conversions:
+
+| From | To | Multiply by | Example |
+|------|-----|-------------|---------|
+| BTU | Wh | ÷ 3.41214 | `{{ 3.41214 \| wh('BTU') }}` = 1.0 |
+| BTU | kWh | ÷ 3412.14 | `{{ 3412.14 \| kwh('BTU') }}` = 1.0 |
+| BTU | J | × 1055.06 | `{{ 1 \| joules('BTU') }}` = 1055.06 |
+| Wh | BTU | × 3.41214 | `{{ 1 \| btu('Wh') }}` = 3.41214 |
+| kWh | BTU | × 3412.14 | `{{ 1 \| btu('kWh') }}` = 3412.14 |
+| J | BTU | ÷ 1055.06 | `{{ 1055.06 \| btu('J') }}` = 1.0 |
+| kWh | Wh | × 1000 | `{{ 1 \| wh('kWh') }}` = 1000.0 |
+| kWh | J | × 3,600,000 | `{{ 1 \| joules('kWh') }}` = 3600000.0 |
+| MJ | kWh | ÷ 3.6 | `{{ 3.6 \| kwh('MJ') }}` = 1.0 |
 
 ## Error Handling
 
