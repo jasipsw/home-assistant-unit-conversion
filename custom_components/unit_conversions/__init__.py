@@ -454,7 +454,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     template.global_filters(hass)["lpm"] = l_per_min
     template.global_filters(hass)["l_per_min"] = l_per_min
     template.global_filters(hass)["gpm"] = gpm
-    template.global_filters(hass)["g_per_min"] = g_per_min
+    template.global_filters(hass)["g_per_min"] = gpm
     
     # Register Temperature conversion filters (both short and long names)
     template.global_filters(hass)["c"] = celsius
