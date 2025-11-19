@@ -1,7 +1,7 @@
 {
   "domain": "unit_conversions",
   "name": "Unit Conversions",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "documentation": "https://github.com/jasipsw/home-assistant-unit-conversion",
   "issue_tracker": "https://github.com/jasipsw/home-assistant-unit-conversion/issues",
   "codeowners": ["@jasipsw"],

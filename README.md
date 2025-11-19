@@ -9,9 +9,10 @@ A Home Assistant custom component that provides comprehensive Jinja2 template fi
 - **`kilowatts`** - Convert to Kilowatts (kW) from W or kW
 
 ### Energy Conversions
-- **`watt_hours`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ
-- **`kilowatt_hours`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ
-- **`joules`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh
+- **`wh`** - Convert to Watt-hours (Wh) from Wh, kWh, J, kJ, MJ, GJ, BTU
+- **`kwh`** - Convert to Kilowatt-hours (kWh) from Wh, kWh, J, kJ, MJ, GJ, BTU
+- **`joules`** - Convert to Joules (J) from J, kJ, MJ, GJ, Wh, kWh, BTU
+- **`btu`** - Convert to BTU (British Thermal Units) from J, kJ, MJ, GJ, Wh, kWh, BTU
 
 ### Flow Conversions
 - **`l_per_min`** - Convert to Liters per Minute from L/min or GPM
@@ -69,16 +70,24 @@ Then restart Home Assistant. The filters will be automatically available in all 
 
 ```yaml
 # Convert 1 kWh to Watt-hours
-{{ 1 | watt_hours('kWh') }}
+{{ 1 | wh('kWh') }}
 # Result: 1000.0
 
 # Convert 3.6 MJ to Kilowatt-hours
-{{ 3.6 | kilowatt_hours('MJ') }}
+{{ 3.6 | kwh('MJ') }}
 # Result: 1.0
 
 # Convert 1 kWh to Joules
 {{ 1 | joules('kWh') }}
 # Result: 3600000.0
+
+# Convert 1 kWh to BTU
+{{ 1 | btu('kWh') }}
+# Result: 3412.14
+
+# Convert 10000 BTU to Joules
+{{ 10000 | joules('BTU') }}
+# Result: 10550600.0
 ```
 
 ### Flow Conversions
@@ -120,6 +129,11 @@ template:
         unit_of_measurement: "kW"
         state: >
           {{ states('sensor.power_meter') | float | kilowatts('W') }}
+
+      - name: "Energy in Watt-hours"
+        unit_of_measurement: "Wh"
+        state: >
+          {{ states('sensor.energy_meter') | float | wh('kWh') }}
 
       - name: "Flow in GPM"
         unit_of_measurement: "GPM"

@@ -203,6 +203,48 @@ def joules(value, from_unit="J"):
         _LOGGER.warning("joules: Unknown unit '%s', treating as Joules", from_unit)
         return v
 
+def btu_energy(value, from_unit="J"):
+    """
+    Convert value to BTU (British Thermal Units) from various energy units.
+    
+    Args:
+        value: Numeric value to convert
+        from_unit: Source unit (J, kJ, MJ, GJ, Wh, kWh, BTU, etc.)
+    
+    Returns:
+        Converted value in BTU, or None if conversion fails
+    
+    Example:
+        {{ 1055.06 | btu_energy('J') }}  -> 1.0
+        {{ 1 | btu_energy('kWh') }} -> 3412.14
+    """
+    try:
+        v = float(value)
+    except (ValueError, TypeError) as e:
+        _LOGGER.warning("btu_energy: Unable to convert value '%s' to float: %s", value, e)
+        return None
+    
+    # Normalize unit string
+    u = str(from_unit or "J").replace(" ", "").replace("_", "").replace("-", "").upper()
+    
+    if u in ("BTU", "BTUS", "BRITISHTHERMALUNIT", "BRITISHTHERMALUNITS"):
+        return v
+    elif u in ("J", "JOULE", "JOULES"):
+        return v / 1055.06  # 1 BTU = 1055.06 J
+    elif u in ("KJ", "KILOJOULE", "KILOJOULES"):
+        return v * 1000.0 / 1055.06
+    elif u in ("MJ", "MEGAJOULE", "MEGAJOULES"):
+        return v * 1000000.0 / 1055.06
+    elif u in ("GJ", "GIGAJOULE", "GIGAJOULES"):
+        return v * 1000000000.0 / 1055.06
+    elif u in ("WH", "WATTHOUR", "WATTHOURS"):
+        return v * 3.41214  # 1 Wh = 3.41214 BTU
+    elif u in ("KWH", "KILOWATTHOUR", "KILOWATTHOURS"):
+        return v * 3412.14  # 1 kWh = 3412.14 BTU
+    else:
+        _LOGGER.warning("btu_energy: Unknown unit '%s', treating as Joules", from_unit)
+        return v / 1055.06
+
 # ========== FLOW CONVERSIONS ==========
 
 def l_per_min(value, from_unit="L/MIN"):
@@ -391,10 +433,11 @@ async def async_setup(hass: HomeAssistant, config: dict):
     hass.helpers.template.global_filters["watts"] = watts
     hass.helpers.template.global_filters["kilowatts"] = kilowatts
     
-    # Register Energy conversion filters
-    hass.helpers.template.global_filters["watt_hours"] = watt_hours
-    hass.helpers.template.global_filters["kilowatt_hours"] = kilowatt_hours
+    # Register Energy conversion filters (using short names)
+    hass.helpers.template.global_filters["wh"] = watt_hours
+    hass.helpers.template.global_filters["kwh"] = kilowatt_hours
     hass.helpers.template.global_filters["joules"] = joules
+    hass.helpers.template.global_filters["btu"] = btu_energy
     
     # Register Flow conversion filters
     hass.helpers.template.global_filters["l_per_min"] = l_per_min
