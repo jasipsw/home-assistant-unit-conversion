@@ -436,25 +436,33 @@ async def async_setup(hass: HomeAssistant, config: dict):
     from homeassistant.helpers import template
     
     _LOGGER.info("Setting up Unit Conversions filters")
-    
-    # Register Power conversion filters
+        
+    # Register Power conversion filters (both short and long names)
     template.global_filters(hass)["w"] = watts
+    template.global_filters(hass)["watts"] = watts
     template.global_filters(hass)["kw"] = kilowatts
+    template.global_filters(hass)["kilowatts"] = kilowatts
     
-    # Register Energy conversion filters
+    # Register Energy conversion filters (both short and long names)
     template.global_filters(hass)["wh"] = watt_hours
     template.global_filters(hass)["kwh"] = kilowatt_hours
     template.global_filters(hass)["j"] = joules
+    template.global_filters(hass)["joules"] = joules
     template.global_filters(hass)["btu"] = btu_energy
     
-    # Register Flow conversion filters
+    # Register Flow conversion filters (both short and long names)
     template.global_filters(hass)["lpm"] = l_per_min
+    template.global_filters(hass)["l_per_min"] = l_per_min
     template.global_filters(hass)["gpm"] = gpm
+    template.global_filters(hass)["g_per_min"] = g_per_min
     
-    # Register Temperature conversion filters
+    # Register Temperature conversion filters (both short and long names)
     template.global_filters(hass)["c"] = celsius
+    template.global_filters(hass)["celsius"] = celsius
     template.global_filters(hass)["f"] = fahrenheit
+    template.global_filters(hass)["fahrenheit"] = fahrenheit
     template.global_filters(hass)["k"] = kelvin
-    
+    template.global_filters(hass)["kelvin"] = kelvin
+
     _LOGGER.info("Unit Conversions filters registered successfully")
     return True
