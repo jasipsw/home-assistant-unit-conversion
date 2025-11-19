@@ -11,6 +11,7 @@ All filters include robust error handling and support multiple unit name variati
 """
 
 from homeassistant.core import HomeAssistant
+from jinja2 import Environment
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -435,6 +436,9 @@ async def async_setup(hass: HomeAssistant, config: dict):
     """
     from homeassistant.helpers import template
 
+    # Get Home Assistant's Jinja2 environment
+    env = hass.data[template.DATA_HASS_ENV]
+
     # Define custom filters
     custom_filters = {
     "w" : watts,
@@ -460,7 +464,6 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
     # Register filters with Home Assistant's Jinja2 environment
     _LOGGER.info("Setting up Unit Conversions filters")
-    env = hass.data[template.DATA_HASS_ENV]
     env.filters.update(custom_filters)
     
     _LOGGER.info("Unit Conversions filters registered successfully")
