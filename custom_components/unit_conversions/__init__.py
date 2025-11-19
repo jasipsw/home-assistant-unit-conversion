@@ -452,7 +452,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     "l_per_min" : l_per_min,
     "gpm" : gpm,
     "g_per_min" : gpm,
-    "c" := celsius,
+    "c" : celsius,
     "celsius" : celsius,
     "f" :  fahrenheit,
     "fahrenheit" : fahrenheit,
