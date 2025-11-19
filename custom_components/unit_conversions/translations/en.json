@@ -1,0 +1,9 @@
+{
+  "config": {
+    "title": "Unit Conversions",
+    "description": "Provides Jinja2 template filters for unit conversions including Power, Energy, Flow, and Temperature."
+  },
+  "options": {
+    "title": "Unit Conversions"
+  }
+}
