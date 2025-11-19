@@ -435,8 +435,6 @@ async def async_setup(hass: HomeAssistant, config: dict):
     """
     from homeassistant.helpers import template
 
-    env = Environment() 
-
     # Define custom filters
     custom_filters = {
     "w" : watts,
@@ -452,7 +450,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     "l_per_min" : l_per_min,
     "gpm" : gpm,
     "g_per_min" : gpm,
-    "c" := celsius,
+    "c" : celsius,
     "celsius" : celsius,
     "f" :  fahrenheit,
     "fahrenheit" : fahrenheit,
@@ -460,11 +458,10 @@ async def async_setup(hass: HomeAssistant, config: dict):
     "kelvin" : kelvin,
     }
 
-    # Update the Jinja2 environment with custom filters
+    # Register filters with Home Assistant's Jinja2 environment
+    _LOGGER.info("Setting up Unit Conversions filters")
+    env = hass.data[template.DATA_HASS_ENV]
     env.filters.update(custom_filters)
     
-    _LOGGER.info("Setting up Unit Conversions filters")
-        
-    # Register Power conversion filters (both short and long names)
     _LOGGER.info("Unit Conversions filters registered successfully")
     return True
