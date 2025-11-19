@@ -441,7 +441,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     custom_filters = {
     "w" : watts,
     "watts" : watts,
-    "kw"] : kilowatts,
+    "kw" : kilowatts,
     "kilowatts" : kilowatts,
     "wh" : watt_hours,
     "kwh" :  kilowatt_hours,
