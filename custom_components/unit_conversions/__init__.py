@@ -9,13 +9,12 @@ Provides Jinja2 template filters for comprehensive unit conversions including:
 
 All filters include robust error handling and support multiple unit name variations.
 """
-
-from homeassistant.core import HomeAssistant
-from jinja2 import Environment
 import logging
 from homeassistant.helpers import template
 
 _LOGGER = logging.getLogger(__name__)
+
+_TemplateEnvironment = template.TemplateEnvironment
 
 # Global reference to Home Assistant instance for use in filters
 _hass_instance = None
