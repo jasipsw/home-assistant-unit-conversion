@@ -13,6 +13,7 @@ All filters include robust error handling and support multiple unit name variati
 from homeassistant.core import HomeAssistant
 from jinja2 import Environment
 import logging
+from homeassistant.helpers import template
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -414,7 +415,7 @@ def gpm(value, from_unit=None):
 
 # ========== TEMPERATURE CONVERSIONS ==========
 
-def celsius(value, from_unit=None):
+def celsius(value, from_unit="F"):
     """
     Convert value to Celsius from various temperature units.
     
@@ -532,8 +533,52 @@ def kelvin(value, from_unit=None):
         return v + 273.15
 
 # ========== HOME ASSISTANT SETUP ==========
+# Array of functions to add as custom filters. Creates a filter and a global macro using the functions name.
+# You can also supply a dict with "name" and "function" keys to specify a custom name for the filter/macro.
+custom_filters = [
+    {"name": "w", "function": watts},
+    {"name": "watts", "function": watts},
+    {"name": "kw", "function": kilowatts},
+    {"name": "kilowatts", "function": kilowatts},
+    {"name": "wh", "function": watt_hours},
+    {"name": "kwh", "function": kilowatt_hours},
+    {"name": "j", "function": joules},
+    {"name": "joules", "function": joules},
+    {"name": "btu", "function": btu_energy},
+    {"name": "lpm", "function": l_per_min},
+    {"name": "l_per_min", "function": l_per_min},
+    {"name": "gpm", "function": gpm},
+    {"name": "g_per_min", "function": gpm},
+    {"name": "c", "function": celsius},
+    {"name": "celsius", "function": celsius},
+    {"name": "f", "function": fahrenheit},
+    {"name": "fahrenheit", "function": fahrenheit},
+    {"name": "k", "function": kelvin},
+    {"name": "kelvin", "function": kelvin},
+]
 
-async def async_setup(hass: HomeAssistant, config: dict):
+def add_custom_filter_function(custom_filter, *environments):
+    """Add a custom filter/macro to one or more Jinja2 environments"""
+    name = custom_filter["name"] if isinstance(custom_filter, dict) else custom_filter.__name__
+    function = custom_filter["function"] if isinstance(custom_filter, dict) else custom_filter
+    for env in environments:
+        env.globals[name] = env.filters[name] = function
+
+def init(*args):
+    """Initialize filters"""
+    env = _TemplateEnvironment(*args)
+    
+    for f in custom_filters:
+        add_custom_filter_function(f, env)
+
+    return env
+
+
+template.TemplateEnvironment = init
+for f in custom_filters:
+    add_custom_filter_function(f, template._NO_HASS_ENV)
+
+async def async_setup(hass, hass_config):
     """
     Set up the Unit Conversions component.
     
@@ -543,41 +588,12 @@ async def async_setup(hass: HomeAssistant, config: dict):
     Returns:
         True if setup successful
     """
-    global _hass_instance
-    from homeassistant.helpers import template
+    config = hass_config.get("unit_conversions", {})
 
-    # Store Home Assistant instance for use in filters
-    _hass_instance = hass
+    tpl = template.Template("", hass)
 
-    # Get Home Assistant's Jinja2 environment
-    env = hass.data[template.DATA_HASS_ENV]
+    for f in custom_filters:
+        add_custom_filter_function(f, tpl._env)
 
-    # Define custom filters
-    custom_filters = {
-    "w" : watts,
-    "watts" : watts,
-    "kw" : kilowatts,
-    "kilowatts" : kilowatts,
-    "wh" : watt_hours,
-    "kwh" :  kilowatt_hours,
-    "j" : joules,
-    "joules" : joules,
-    "btu" : btu_energy,
-    "lpm" : l_per_min,
-    "l_per_min" : l_per_min,
-    "gpm" : gpm,
-    "g_per_min" : gpm,
-    "c" : celsius,
-    "celsius" : celsius,
-    "f" :  fahrenheit,
-    "fahrenheit" : fahrenheit,
-    "k" : kelvin,
-    "kelvin" : kelvin,
-    }
-
-    # Register filters with Home Assistant's Jinja2 environment
-    _LOGGER.info("Setting up Unit Conversions filters")
-    env.filters.update(custom_filters)
-    
     _LOGGER.info("Unit Conversions filters registered successfully")
     return True
