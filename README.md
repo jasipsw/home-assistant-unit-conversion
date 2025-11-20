@@ -52,6 +52,27 @@ unit_conversions:
 
 Then restart Home Assistant. The filters will be automatically available in all Jinja2 templates.
 
+## Features
+
+### Direct Sensor Support (New!)
+
+All filters now support passing sensor entity IDs directly! The filter will:
+- Automatically retrieve the sensor's current value
+- Use the sensor's `unit_of_measurement` as the source unit (if not explicitly specified)
+- Convert to your target unit
+
+```yaml
+# Automatically uses sensor's unit_of_measurement
+{{ 'sensor.power_meter' | kw }}
+
+# Or explicitly specify the source unit
+{{ 'sensor.power_meter' | kw('W') }}
+
+# Both numeric values and entity IDs work
+{{ 5 | kw('W') }}  # Direct value
+{{ 'sensor.power_meter' | kw }}  # Entity ID
+```
+
 ## Usage Examples
 
 ### Power Conversions
@@ -64,6 +85,10 @@ Then restart Home Assistant. The filters will be automatically available in all 
 # Convert 1000 W to Kilowatts
 {{ 1000 | kw('W') }}
 # Result: 1.0
+
+# Use sensor entity ID directly
+{{ 'sensor.power_consumption' | kw }}
+# Automatically converts using sensor's unit
 ```
 
 ### Energy Conversions
@@ -130,7 +155,38 @@ Then restart Home Assistant. The filters will be automatically available in all 
 
 ### Using with Sensors
 
-Create template sensors that automatically convert units:
+The filters can now directly accept sensor entity IDs! When you pass an entity ID (like `sensor.power_meter`), the filter will automatically:
+1. Retrieve the current sensor value
+2. Use the sensor's `unit_of_measurement` attribute as the source unit (if not explicitly specified)
+3. Convert to the target unit
+
+**New simplified syntax (recommended):**
+
+```yaml
+template:
+  - sensor:
+      - name: "Power in Kilowatts"
+        unit_of_measurement: "kW"
+        state: >
+          {{ 'sensor.power_meter' | kw }}
+
+      - name: "Energy in Watt-hours"
+        unit_of_measurement: "Wh"
+        state: >
+          {{ 'sensor.energy_meter' | wh }}
+
+      - name: "Flow in GPM"
+        unit_of_measurement: "GPM"
+        state: >
+          {{ 'sensor.water_flow' | gpm }}
+
+      - name: "Temperature in Fahrenheit"
+        unit_of_measurement: "°F"
+        state: >
+          {{ 'sensor.outdoor_temp' | f }}
+```
+
+**Traditional syntax (still supported):**
 
 ```yaml
 template:
@@ -155,6 +211,8 @@ template:
         state: >
           {{ states('sensor.outdoor_temp') | float | f('C') }}
 ```
+
+Both approaches work, but the new syntax is cleaner and automatically uses the sensor's unit!
 
 ## Testing
 
